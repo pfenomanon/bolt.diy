@@ -46,6 +46,11 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
       - PORT=5173
+      # talk to Supabase via its internal DNS name on the Supabase network
+      - SUPABASE_URL=http://supabase_kong_supabase:8000
+      # sensible defaults so you never hit temp=0
+      - AI_DEFAULT_TEMPERATURE=${AI_DEFAULT_TEMPERATURE:-1}
+      - AI_TEMPERATURE=${AI_TEMPERATURE:-1}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - HuggingFace_API_KEY=${HuggingFace_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -72,7 +77,11 @@ services:
       - "5173:5173"
     command: pnpm run dev --host 0.0.0.0
     profiles: ["development", "default"]
-
+    networks:
+      - archon-net
+          external: true
+      - supabase_network_supabase
+          external: true
   app-prebuild:
     image: ghcr.io/stackblitz-labs/bolt.diy:latest 
     ports:
